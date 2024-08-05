@@ -49,7 +49,11 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
+     * - icons (icon files)
+     * - sw.js (service worker)
+     * - workbox-*.js (workbox scripts)
+     * - manifest.json (web app manifest)
      */
-    '/((?!api|_next/static|_next/image|favicon.ico).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico|icons|sw.js|workbox-.*\\.js|manifest.json).*)',
   ],
 };
