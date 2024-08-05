@@ -13,17 +13,12 @@ export const metadata: Metadata = {
   description:
     'Track your beer consumption and compete with your friends! Are you able to beat everyone?',
   generator: 'Next.js',
-  manifest: '/manifest.json',
   keywords: ['beer', 'tracker', 'compete', 'leaderboard', 'friends'],
   authors: [
     {
       name: 'Bruno Dzięcielski',
       url: 'https://github.com/kriziu',
     },
-  ],
-  icons: [
-    { rel: 'apple-touch-icon', url: 'icons/icon-192x192.png' },
-    { rel: 'icon', url: 'icons/icon-128x128.png' },
   ],
 };
 
