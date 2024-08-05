@@ -25,7 +25,7 @@ export default function middleware(req: NextRequest) {
     (path) => !req.nextUrl.pathname.startsWith(path),
   );
 
-  // Used when protectPage is forcing user to login
+  // Used when validateAuth is forcing user to login
   const isUnauthenticatedForced =
     unauthenticatedPaths.some((path) => req.nextUrl.pathname.startsWith(path)) &&
     req.nextUrl.searchParams.has('unauthenticated');

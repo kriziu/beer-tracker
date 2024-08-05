@@ -20,6 +20,7 @@ describe('User', () => {
       expect(safeData).toEqual({
         id: '123',
         name: 'test',
+        quantity: 1,
         email: 'test@email.com',
       });
     });

@@ -45,7 +45,7 @@ export default function RegisterUserForm() {
     <Card>
       <CardHeader>
         <CardTitle>Register in Beer Tracker</CardTitle>
-        <CardDescription>Are you the best drinker?</CardDescription>
+        <CardDescription>Are you able to beat everyone?</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>

@@ -71,14 +71,14 @@ async function validateRequestUncached(): Promise<
 
 export const validateRequest = cache(validateRequestUncached);
 
-export const protectPage = cache(async () => {
-  const { user } = await validateRequest();
+export const validateAuth = cache(async () => {
+  const auth = await validateRequest();
 
-  if (!user) {
+  if (!auth.user) {
     redirect('/login?unauthenticated');
   }
 
-  return user;
+  return auth;
 });
 
 export async function validateDataAccessAuth() {

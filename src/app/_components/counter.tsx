@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { getUpdatedQuantity } from '@/entities/user';
+import { useLocalStorageState } from '@/hooks/useLocalStorageState';
 
 import Score from './score';
 import * as Action from '../actions';
@@ -26,7 +27,10 @@ type CounterProps = Readonly<{
 export default function Counter({ initialUserQuantity }: CounterProps) {
   const [userQuantity, setUserQuantity] = useState(initialUserQuantity);
   const [debouncedQuantity, setDebouncedQuantity] = useState(0);
-  const [quantity, setQuantity] = useState('500');
+  const [selectedQuantity, setSelectedQuantity] = useLocalStorageState(
+    'select-quantity',
+    '500',
+  );
 
   const updateUserQuantityAction = useServerAction(Action.updateUserQuantityAction, {
     onFinish: () => {
@@ -59,12 +63,12 @@ export default function Counter({ initialUserQuantity }: CounterProps) {
   };
 
   const handleIncrement = () => {
-    const newQuantity = updateQuantity(Number(quantity));
+    const newQuantity = updateQuantity(Number(selectedQuantity));
     debouncedExecute(newQuantity);
   };
 
   const handleDecrement = () => {
-    const newQuantity = updateQuantity(-Number(quantity));
+    const newQuantity = updateQuantity(-Number(selectedQuantity));
     debouncedExecute(newQuantity);
   };
 
@@ -84,7 +88,7 @@ export default function Counter({ initialUserQuantity }: CounterProps) {
         >
           <Minus className="size-4" />
         </Button>
-        <Select value={quantity} onValueChange={setQuantity}>
+        <Select value={selectedQuantity} onValueChange={setSelectedQuantity}>
           <SelectTrigger>
             <SelectValue />
           </SelectTrigger>
