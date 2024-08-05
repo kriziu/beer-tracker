@@ -37,7 +37,7 @@ export default function LoginUserForm() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Login to dashboard</CardTitle>
+        <CardTitle>Login to Beer Tracker</CardTitle>
       </CardHeader>
       <CardContent>
         <Form {...form}>

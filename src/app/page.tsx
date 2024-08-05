@@ -1,16 +1,17 @@
 import { protectPage } from '@/lib/auth';
 
+import Counter from './_components/counter';
+import Leaderboard from './_components/leaderboard';
 import LogoutButton from './_components/logout-button';
 
 export default async function HomePage() {
-  await protectPage();
+  const { quantity } = await protectPage();
 
   return (
-    <main className="grid place-items-center h-dvh">
-      <div className="space-y-4 flex flex-col">
-        <p>This page is protected</p>
-        <LogoutButton />
-      </div>
-    </main>
+    <div className="space-y-4 flex flex-col p-10 items-center h-dvh">
+      <LogoutButton />
+      <Counter initialUserQuantity={quantity} />
+      <Leaderboard />
+    </div>
   );
 }

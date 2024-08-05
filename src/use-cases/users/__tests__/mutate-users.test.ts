@@ -5,7 +5,12 @@ import { z } from 'zod';
 import { LoginUserDto, RegisterUserDto, User } from '@/entities/user';
 import { passwordHashOptions } from '@/lib/auth.config';
 
-import { errorMessages, loginUser, registerUser } from '../mutate-users';
+import {
+  errorMessages,
+  loginUser,
+  registerUser,
+  updateUserQuantity,
+} from '../mutate-users';
 
 describe('mutate-users', () => {
   let mockUserData: User;
@@ -16,14 +21,16 @@ describe('mutate-users', () => {
       id: '123',
       name: 'test',
       email: 'test@email.com',
+      quantity: 0,
       passwordHash,
     };
   });
 
-  const mockCreateUser = vi.fn((obj) => Promise.resolve(obj));
   const getMockCtx = (userData: User | null) => ({
-    createUser: mockCreateUser,
+    createUser: vi.fn((obj) => Promise.resolve(obj)),
     getUserByEmail: vi.fn().mockResolvedValue(userData),
+    getUserById: vi.fn().mockResolvedValue(userData),
+    updateUser: vi.fn(),
   });
 
   describe('registerUser', () => {
@@ -67,6 +74,7 @@ describe('mutate-users', () => {
           id: expect.any(String),
           name: mockUserData.name,
           email: mockUserData.email,
+          quantity: mockUserData.quantity,
         }),
       );
     });
@@ -115,7 +123,39 @@ describe('mutate-users', () => {
         id: mockUserData.id,
         name: mockUserData.name,
         email: mockUserData.email,
+        quantity: mockUserData.quantity,
       });
+    });
+  });
+
+  describe('updateUserQuantity', () => {
+    it('should throw an error if the user does not exist', async () => {
+      const ctx = getMockCtx(null);
+
+      await expect(updateUserQuantity(ctx, '123', 1)).rejects.toThrow(
+        errorMessages.NoUserFound,
+      );
+    });
+
+    it('should return a user with the updated quantity if the user exists', async () => {
+      const ctx = {
+        ...getMockCtx(mockUserData),
+        updateUser: vi.fn((_, obj) =>
+          Promise.resolve({
+            ...mockUserData,
+            ...obj,
+          }),
+        ),
+      };
+
+      await expect(updateUserQuantity(ctx, '123', 100)).resolves.toEqual(
+        expect.objectContaining({
+          id: mockUserData.id,
+          name: mockUserData.name,
+          email: mockUserData.email,
+          quantity: 100,
+        }),
+      );
     });
   });
 });

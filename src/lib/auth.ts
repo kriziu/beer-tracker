@@ -22,6 +22,7 @@ export const lucia = new Lucia(authAdapter, {
     id: attributes.id,
     name: attributes.name,
     email: attributes.email,
+    quantity: attributes.quantity,
   }),
 });
 
@@ -29,6 +30,7 @@ interface DatabaseUserAttributes {
   id: string;
   name: string;
   email: string;
+  quantity: number;
   passwordHash: string;
 }
 
@@ -75,6 +77,8 @@ export const protectPage = cache(async () => {
   if (!user) {
     redirect('/login?unauthenticated');
   }
+
+  return user;
 });
 
 export async function validateDataAccessAuth() {

@@ -9,6 +9,7 @@ import {
   LoginUserDto,
   UserWithSafeData,
   userToSafeData,
+  getUpdatedQuantity,
 } from '@/entities/user';
 import { passwordHashOptions } from '@/lib/auth.config';
 
@@ -17,6 +18,7 @@ import type { MutateUsersDependencies } from './dependencies';
 export const errorMessages = {
   UserAlreadyExist: 'User with this email already exists.',
   InvalidCredentials: 'Invalid credentials.',
+  NoUserFound: 'No user found.',
 };
 
 export async function registerUser(
@@ -37,6 +39,7 @@ export async function registerUser(
     id: userId,
     name: parsedData.name,
     email: parsedData.email,
+    quantity: 0,
     passwordHash,
   });
 
@@ -60,6 +63,22 @@ export async function loginUser(
   }
 
   return userToSafeData(user);
+}
+
+export async function updateUserQuantity(
+  ctx: MutateUsersDependencies,
+  userId: string,
+  quantity: number,
+): Promise<UserWithSafeData> {
+  const originalUser = await ctx.getUserById(userId);
+  if (!originalUser) {
+    throw new Error(errorMessages.NoUserFound);
+  }
+
+  const newQuantity = getUpdatedQuantity(originalUser.quantity, quantity);
+  const updatedUser = await ctx.updateUser(userId, { quantity: newQuantity });
+
+  return userToSafeData(updatedUser);
 }
 
 async function isUserPasswordMatch(user: User, password: string) {
