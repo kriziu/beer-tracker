@@ -85,6 +85,7 @@ export default function Counter({ initialUserQuantity }: CounterProps) {
           variant="secondary"
           onClick={handleDecrement}
           loading={isLoadingDecrement}
+          disabled={userQuantity <= 0}
         >
           <Minus className="size-4" />
         </Button>

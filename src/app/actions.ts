@@ -22,6 +22,10 @@ export const logoutAction = createServerAction().handler(async () => {
   redirect('/');
 });
 
+export const refreshAction = createServerAction().handler(async () => {
+  revalidatePath('/');
+});
+
 export const updateUserQuantityAction = createServerAction()
   .input(z.number())
   .handler(async ({ input }) => {
