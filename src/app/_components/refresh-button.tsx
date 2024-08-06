@@ -1,17 +1,22 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useCallback, useEffect, useTransition } from 'react';
 
 import { RefreshCcw } from 'lucide-react';
-import { useServerAction } from 'zsa-react';
+import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
-import * as Actions from '../actions';
-
 export default function RefreshButton() {
-  const refreshAction = useServerAction(Actions.refreshAction);
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+
+  const handleRefresh = useCallback(() => {
+    startTransition(() => {
+      router.refresh();
+    });
+  }, [router, startTransition]);
 
   useEffect(() => {
     const abortController = new AbortController();
@@ -19,9 +24,9 @@ export default function RefreshButton() {
     window.addEventListener(
       'focus',
       () => {
-        if (refreshAction.isPending || document.hidden) return;
+        if (isPending || document.hidden) return;
 
-        refreshAction.execute();
+        handleRefresh();
       },
       { signal: abortController.signal },
     );
@@ -29,9 +34,9 @@ export default function RefreshButton() {
     window.addEventListener(
       'visibilitychange',
       () => {
-        if (refreshAction.isPending || document.hidden) return;
+        if (isPending || document.hidden) return;
 
-        refreshAction.execute();
+        handleRefresh();
       },
       { signal: abortController.signal },
     );
@@ -39,17 +44,17 @@ export default function RefreshButton() {
     return () => {
       abortController.abort();
     };
-  }, [refreshAction]);
+  }, [handleRefresh, isPending]);
 
   return (
     <Button
       variant="outline"
       className="fixed top-4 left-4"
       size="icon"
-      onClick={() => refreshAction.execute()}
-      disabled={refreshAction.isPending}
+      onClick={handleRefresh}
+      disabled={isPending}
     >
-      <RefreshCcw className={cn('size-4', refreshAction.isPending && 'animate-spin')} />
+      <RefreshCcw className={cn('size-4', isPending && 'animate-spin')} />
     </Button>
   );
 }
