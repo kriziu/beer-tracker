@@ -1,8 +1,7 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useRef } from 'react';
 
-import debounce from 'lodash/debounce';
 import { Minus, Plus } from 'lucide-react';
 import { useServerAction } from 'zsa-react';
 
@@ -14,101 +13,70 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { getUpdatedQuantity } from '@/entities/user';
 import { useLocalStorageState } from '@/hooks/useLocalStorageState';
 
-import Score from './score';
 import * as Action from '../actions';
 
 type CounterProps = Readonly<{
-  initialUserQuantity: number;
+  quantity: number;
 }>;
 
-export default function Counter({ initialUserQuantity }: CounterProps) {
-  const [userQuantity, setUserQuantity] = useState(initialUserQuantity);
-  const [debouncedQuantity, setDebouncedQuantity] = useState(0);
+export default function Counter({ quantity }: CounterProps) {
   const [selectedQuantity, setSelectedQuantity] = useLocalStorageState(
     'select-quantity',
     '500',
   );
 
-  const updateUserQuantityAction = useServerAction(Action.updateUserQuantityAction, {
-    onFinish: () => {
-      setDebouncedQuantity(0);
-    },
-  });
+  const clickedOnIncrement = useRef(true);
 
-  useEffect(() => {
-    setUserQuantity(initialUserQuantity);
-  }, [initialUserQuantity]);
-
-  const debouncedExecute = useMemo(
-    () => debounce(updateUserQuantityAction.execute, 300),
-    [updateUserQuantityAction.execute],
-  );
-
-  const updateQuantity = (newQuantity: number) => {
-    const newUserQuantity = getUpdatedQuantity(userQuantity, newQuantity);
-    setUserQuantity(newUserQuantity);
-
-    if (newUserQuantity === 0) {
-      setDebouncedQuantity(-initialUserQuantity);
-      return -initialUserQuantity;
-    }
-
-    const newDebouncedQuantity = debouncedQuantity + newQuantity;
-    setDebouncedQuantity(newDebouncedQuantity);
-
-    return newDebouncedQuantity;
-  };
+  const updateUserQuantityAction = useServerAction(Action.updateUserQuantityAction);
 
   const handleIncrement = () => {
-    const newQuantity = updateQuantity(Number(selectedQuantity));
-    debouncedExecute(newQuantity);
+    clickedOnIncrement.current = true;
+    updateUserQuantityAction.execute(Number(selectedQuantity));
   };
 
   const handleDecrement = () => {
-    const newQuantity = updateQuantity(-Number(selectedQuantity));
-    debouncedExecute(newQuantity);
+    clickedOnIncrement.current = false;
+    updateUserQuantityAction.execute(-Number(selectedQuantity));
   };
 
-  const isLoadingDecrement = debouncedQuantity < 0 && updateUserQuantityAction.isPending;
-  const isLoadingIncrement = debouncedQuantity > 0 && updateUserQuantityAction.isPending;
+  const isLoadingDecrement =
+    !clickedOnIncrement.current && updateUserQuantityAction.isPending;
+  const isLoadingIncrement =
+    clickedOnIncrement.current && updateUserQuantityAction.isPending;
 
   return (
-    <div className="space-y-4 w-full">
-      <Score quantity={userQuantity} />
-      <div className="flex space-x-4 w-full">
-        <Button
-          className="shrink-0"
-          size="icon"
-          variant="secondary"
-          onClick={handleDecrement}
-          loading={isLoadingDecrement}
-          disabled={userQuantity <= 0}
-        >
-          <Minus className="size-4" />
-        </Button>
-        <Select value={selectedQuantity} onValueChange={setSelectedQuantity}>
-          <SelectTrigger>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="500">500ml</SelectItem>
-            <SelectItem value="400">400ml</SelectItem>
-            <SelectItem value="330">330ml</SelectItem>
-          </SelectContent>
-        </Select>
-        <Button
-          className="shrink-0"
-          size="icon"
-          variant="secondary"
-          onClick={handleIncrement}
-          loading={isLoadingIncrement}
-        >
-          <Plus className="size-4" />
-        </Button>
-      </div>
+    <div className="flex space-x-4 w-full">
+      <Button
+        className="shrink-0"
+        size="icon"
+        variant="secondary"
+        onClick={handleDecrement}
+        loading={isLoadingDecrement}
+        disabled={quantity <= 0}
+      >
+        <Minus className="size-4" />
+      </Button>
+      <Select value={selectedQuantity} onValueChange={setSelectedQuantity}>
+        <SelectTrigger>
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="500">500ml</SelectItem>
+          <SelectItem value="400">400ml</SelectItem>
+          <SelectItem value="330">330ml</SelectItem>
+        </SelectContent>
+      </Select>
+      <Button
+        className="shrink-0"
+        size="icon"
+        variant="secondary"
+        onClick={handleIncrement}
+        loading={isLoadingIncrement}
+      >
+        <Plus className="size-4" />
+      </Button>
     </div>
   );
 }
